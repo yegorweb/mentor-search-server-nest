@@ -1,0 +1,24 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import Town from 'src/town/interfaces/town.interface';
+
+export type SchoolDocument = HydratedDocument<SchoolClass>
+
+@Schema()//{ collection: 'School' })
+export class SchoolClass {
+  @Prop({ 
+    type: String, 
+    required: true 
+  })
+  name: string
+  
+  @Prop({ 
+    type: mongoose.Types.ObjectId, 
+    ref: 'Town', 
+    required: true,
+    autopopulate: true
+  })
+  town: Town
+}
+
+export const SchoolSchema = SchemaFactory.createForClass(SchoolClass)
