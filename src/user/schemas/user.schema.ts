@@ -9,7 +9,7 @@ import { Roles } from 'src/types/role.type';
 
 export type UserDocument = HydratedDocument<UserClass>
 
-@Schema()//{ collection: 'User' })
+@Schema()
 export class UserClass {
   @Prop({ 
     type: String, 
@@ -83,9 +83,8 @@ export class UserClass {
   @Prop({ 
     type: mongoose.Types.ObjectId, 
     ref: 'School',
-    autopopulate: true
   })
-  administered_schools: School[]
+  administered_schools: mongoose.Types.ObjectId[]
 
   @Prop({ 
     type: Number, 

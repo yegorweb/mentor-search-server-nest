@@ -1,4 +1,5 @@
 import { Global, Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as jwt from 'jsonwebtoken'
 import mongoose, { Model } from 'mongoose';
@@ -11,6 +12,7 @@ import { TokenClass } from './schemas/token.schema';
 export class TokenService {
   constructor(
     @InjectModel('Token') private TokenModel: Model<TokenClass>,
+		private jwtService: JwtService
 	) {}
 
   validateResetToken(token: string, secret: string): User {
@@ -22,7 +24,7 @@ export class TokenService {
 		}
 	}
 
-	createResetToken(payload: User, secret: string): string {
+	createResetToken(payload, secret: string): string {
 		try {
 			let result = jwt.sign(payload, secret, { expiresIn: '15m' })
 			return result
@@ -31,13 +33,14 @@ export class TokenService {
 		}
 	}
 
-	generateTokens(payload: User): { accessToken: string, refreshToken: string } {
+	generateTokens(payload: Object): { accessToken: string, refreshToken: string } {
 		try {
 			const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '60m' })
 			const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' })
 
 			return { accessToken, refreshToken }
 		} catch (error) {
+			console.log(error)
 			return { accessToken: null, refreshToken: null }
 		}
 	}
@@ -51,7 +54,7 @@ export class TokenService {
 		}
 	}
 
-	validateRefreshToken(token: string): Token {
+	validateRefreshToken(token: string): User {
 		try {
 			const userData: any = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
 			return userData
@@ -64,11 +67,11 @@ export class TokenService {
 		const tokenData = await this.TokenModel.findOne({ user })
 		if (!tokenData) {
 			const token = await this.TokenModel.create({ user, refreshToken })
-			return token.toObject()
+			return token
 		}
 		
 		tokenData.refreshToken = refreshToken
-		return (await tokenData.save()).toObject()
+		return (await tokenData.save())
 	}
 
 	async removeToken(refreshToken: string) {

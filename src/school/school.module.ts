@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { TokenModule } from 'src/token/token.module';
@@ -9,7 +10,8 @@ import { SchoolController } from './school.controller';
 @Module({
   imports: [
     SchoolModel,
-    TokenModule
+    TokenModule,
+    JwtModule
   ],
   controllers: [SchoolController],
 })

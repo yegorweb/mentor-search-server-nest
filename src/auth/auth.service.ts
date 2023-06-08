@@ -25,7 +25,7 @@ export class AuthService {
     const password = await bcrypt.hash(user.password, 3)
     const created_user = await this.UserModel.create(Object.assign(user, { password: password, roles: ['super_admin'] }))
  
-    const tokens = this.TokenService.generateTokens(created_user.toObject())
+    const tokens = this.TokenService.generateTokens(created_user)
     await this.TokenService.saveToken(created_user._id, tokens.refreshToken)
     
     return {
@@ -35,7 +35,7 @@ export class AuthService {
   }  
 
   async login(email: string, password: string) {
-    const user = await this.UserModel.findOne({ email })
+    const user = (await this.UserModel.findOne({ email })).toObject()
   
     if (!user) {
       throw ApiError.BadRequest('Пользователь с таким email не найден')
@@ -46,12 +46,12 @@ export class AuthService {
       throw ApiError.BadRequest('Неверный пароль')
     }
   
-    const tokens = this.TokenService.generateTokens(user.toObject())
+    const tokens = this.TokenService.generateTokens(user)
     await this.TokenService.saveToken(user._id, tokens.refreshToken)
   
     return {
       ...tokens,
-      user: user.toObject()
+      user: user
     }      
   }  
 
@@ -66,16 +66,16 @@ export class AuthService {
       throw ApiError.UnauthorizedError()
     }
  
-    const user = await this.UserModel.findById(userData.user)
- 
+    const user = (await this.UserModel.findById(userData._id)).toObject()
+
     await this.TokenService.removeToken(refreshToken)
 
-    const tokens = this.TokenService.generateTokens(user.toObject())
+    const tokens = this.TokenService.generateTokens(user)
     await this.TokenService.saveToken(user._id, tokens.refreshToken)
  
     return {
       ...tokens,
-      user: user.toObject()
+      user: user
     }
   }
 
@@ -88,12 +88,12 @@ export class AuthService {
       const hashPassword = await bcrypt.hash(password, 3)
       const user = await this.UserModel.findByIdAndUpdate(user_id, { password: hashPassword })
 
-      const tokens = this.TokenService.generateTokens(user.toObject())
+      const tokens = this.TokenService.generateTokens(user)
       await this.TokenService.saveToken(user._id, tokens.refreshToken)
 
       return {
         ...tokens,
-        user: user.toObject()
+        user: user
       }
     } catch (error) {
       return null
@@ -120,7 +120,7 @@ export class AuthService {
 
     const secret = process.env.JWT_RESET_SECRET + candidate.password
 
-    const token = this.TokenService.createResetToken(candidate.toObject(), secret)
+    const token = this.TokenService.createResetToken(candidate, secret)
 
     const link = process.env.CLIENT_URL + `/forgot-password?user_id=${candidate._id}&token=${token}`
 
@@ -138,7 +138,7 @@ export class AuthService {
     delete user.email
     return (await this.UserModel.findOneAndUpdate({ email }, user, {
       new: true
-    })).toObject()
+    }))
   }
   
   // async clearUsers() {

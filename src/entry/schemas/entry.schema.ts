@@ -6,7 +6,7 @@ import { User } from 'src/user/interfaces/user.interface';
 
 export type EntryDocument = HydratedDocument<EntryClass>
 
-@Schema()//{ collection: 'Entry' })
+@Schema()
 export class EntryClass {
   @Prop({ 
     type: String, 

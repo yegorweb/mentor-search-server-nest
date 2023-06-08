@@ -1,30 +1,17 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AuthMiddleware } from 'src/middlewares/auth.middleware';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TokenModule } from 'src/token/token.module';
 import { EntryController } from './entry.controller';
+import { EntryService } from './entry.service';
 import EntryModel from './models/entry.model';
-import { EntryClass, EntrySchema } from './schemas/entry.schema';
 
 @Module({
   imports: [
     EntryModel,
-    TokenModule
+    TokenModule,
+    JwtModule
   ],
   controllers: [EntryController],
+  providers: [EntryService],
 })
-export class EntryModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes(
-        'get-entries-to-moderation', 
-        'create', 
-        'edit', 
-        'response',
-        'cancel-response',
-        'verify',
-        'delete'
-      )
-  }
-}
+export class EntryModule {}

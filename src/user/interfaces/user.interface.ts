@@ -20,7 +20,7 @@ export interface User {
   grade: number
   town: Town
   school: School
-  administered_schools?: School[]
+  administered_schools?: mongoose.Types.ObjectId[]
   date: number
   roles: Roles
 }

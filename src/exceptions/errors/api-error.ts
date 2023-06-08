@@ -1,4 +1,4 @@
-import { HttpException } from "@nestjs/common"
+import { HttpException, HttpStatus } from "@nestjs/common"
 
 export default class ApiError extends HttpException {
 	error_code: number
@@ -16,5 +16,9 @@ export default class ApiError extends HttpException {
 
 	static BadRequest(message: string, errors = []) {
 		return new ApiError(400, message, errors)
+	}
+
+	static AccessDenied() {
+		return new ApiError(HttpStatus.NOT_ACCEPTABLE, 'Отказано в доступе')
 	}
 }

@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { NextFunction } from 'express';
 import { Model } from 'mongoose';
+import { GlobalAdminGuard } from 'src/admin/global_admin.guard';
 import ApiError from 'src/exceptions/errors/api-error';
 import SchoolModel from './models/school.model';
 import { SchoolClass } from './schemas/school.schema';
@@ -42,6 +43,7 @@ export class SchoolController {
     }      
   }
 
+  @UseGuards(GlobalAdminGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('create')
   async create(@Body() body, @Next() next: NextFunction) {

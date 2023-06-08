@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type TokenDocument = HydratedDocument<TokenClass>
 
-@Schema()//{ collection: 'Token' })
+@Schema()
 export class TokenClass {
   @Prop({ 
     required: true, 

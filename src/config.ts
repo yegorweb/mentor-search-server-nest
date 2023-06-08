@@ -9,14 +9,3 @@ export const roles = {
   school_admin: 'school-admin',
   mentor: 'mentor'
 } as const
-
-export function isAdmin(user: User, document: Entry): boolean {
-  return (
-    user.roles.includes(roles.school_admin) && 
-    user.administered_schools.some(item => item._id == document.school._id)
-  ) || user.roles.includes(roles.global_admin)
-}
-
-export function isAuthor(user: User, document: Entry): boolean {
-  return user._id == document.author._id
-}

@@ -4,7 +4,7 @@ import Town from 'src/town/interfaces/town.interface';
 
 export type SchoolDocument = HydratedDocument<SchoolClass>
 
-@Schema()//{ collection: 'School' })
+@Schema()
 export class SchoolClass {
   @Prop({ 
     type: String, 

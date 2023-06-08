@@ -22,8 +22,7 @@ export class AuthController {
 					httpOnly: true, 
 					secure: eval(process.env.HTTPS) 
 				}
-			)
-			return userData
+			).json(userData)
 		} catch (error) {
 			next(error)
 		}
@@ -44,9 +43,7 @@ export class AuthController {
 					httpOnly: true, 
 					secure: eval(process.env.HTTPS)
 				}
-			)
-	
-			return userData
+			).json(userData)
 		} catch (error) {
 			next(error)
 		}
@@ -67,9 +64,7 @@ export class AuthController {
 					httpOnly: true,
 					secure: eval(process.env.HTTPS)
 				}
-			)
-	
-			return userData
+			).json(userData)
 		} catch (error) {
 			next(error)
 		}
@@ -102,8 +97,7 @@ export class AuthController {
 					httpOnly: true,
 					secure: eval(process.env.HTTPS)
 				}
-			)
-      return userData
+			).json(userData)
     } catch (error) {
       next(error)
     }	
