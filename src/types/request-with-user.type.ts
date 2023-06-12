@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { User } from "src/user/interfaces/user.interface";
+import { UserFromClient } from "src/user/interfaces/user-from-client.interface";
 
-type RequestWithUser = Request & { user: User }
+type RequestWithUser = Request & { user: UserFromClient }
 export default RequestWithUser

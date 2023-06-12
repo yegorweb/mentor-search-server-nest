@@ -5,7 +5,7 @@ import ApiError from 'src/exceptions/errors/api-error'
 import { InjectModel } from '@nestjs/mongoose'
 import { UserClass } from 'src/user/schemas/user.schema'
 import { User } from 'src/user/interfaces/user.interface'
-import UserModel from 'src/user/models/user.model'
+import { UserFromClient } from 'src/user/interfaces/user-from-client.interface'
 
 let bcrypt = require('bcrypt')
 
@@ -13,10 +13,10 @@ let bcrypt = require('bcrypt')
 export class AuthService {
   constructor(
     @InjectModel('User') private UserModel: Model<UserClass>,
-    private TokenService: TokenService
+    private TokenService: TokenService,
   ) {}
 
-  async registration(user: User) {
+  async registration(user: User | UserFromClient) {
     const candidate = await this.UserModel.findOne({ email: user.email })
     if (candidate) {
       throw ApiError.BadRequest(`Пользователь с почтой ${user.email} уже существует`)
@@ -51,7 +51,7 @@ export class AuthService {
   
     return {
       ...tokens,
-      user: user
+      user
     }      
   }  
 
@@ -61,11 +61,11 @@ export class AuthService {
     }
     const userData = this.TokenService.validateRefreshToken(refreshToken)
     const tokenFromDb = await this.TokenService.findToken(refreshToken)
- 
+
     if (!userData || !tokenFromDb) {
       throw ApiError.UnauthorizedError()
     }
- 
+
     const user = (await this.UserModel.findById(userData._id)).toObject()
 
     await this.TokenService.removeToken(refreshToken)
@@ -107,19 +107,17 @@ export class AuthService {
     let secret = process.env.JWT_RESET_SECRET + candidate.password
     let result = this.TokenService.validateResetToken(token, secret)
 
-    if (!result) throw ApiError.BadRequest('Нет доступа')
+    if (!result) throw ApiError.AccessDenied()
 
     return result
   }    
 
   async sendResetLink(email: string) {
     let candidate = await this.UserModel.findOne({ email })
-
     if (!candidate)
       throw ApiError.BadRequest('Пользователь с таким email не найден')
 
     const secret = process.env.JWT_RESET_SECRET + candidate.password
-
     const token = this.TokenService.createResetToken(candidate, secret)
 
     const link = process.env.CLIENT_URL + `/forgot-password?user_id=${candidate._id}&token=${token}`
@@ -133,16 +131,9 @@ export class AuthService {
     return await this.TokenService.removeToken(refreshToken)
   }
   
-  async update(user: User) {
-    let email = user.email
-    delete user.email
-    return (await this.UserModel.findOneAndUpdate({ email }, user, {
+  async update(new_user: UserFromClient, user: UserFromClient) {
+    return (await this.UserModel.findByIdAndUpdate(user._id, new_user, {
       new: true
     }))
   }
-  
-  // async clearUsers() {
-  //   console.log(await UserModel.deleteMany({}))    
-  // }
-  
 }

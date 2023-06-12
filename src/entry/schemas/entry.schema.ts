@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import School from 'src/school/interfaces/school.interface';
 import Town from 'src/town/interfaces/town.interface';
+import { EntryType } from 'src/types/entry-type.type';
 import { User } from 'src/user/interfaces/user.interface';
 
 export type EntryDocument = HydratedDocument<EntryClass>
@@ -12,7 +13,7 @@ export class EntryClass {
     type: String, 
     required: true 
   })
-  type: string
+  type: EntryType
 
   @Prop({ 
     type: String, 

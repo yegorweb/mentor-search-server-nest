@@ -1,0 +1,1 @@
+export type EntryType = 'mentor' | 'lesson' | 'club'

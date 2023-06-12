@@ -6,11 +6,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserClass, UserSchema } from 'src/user/schemas/user.schema';
 import { TokenModule } from 'src/token/token.module';
 import UserModel from 'src/user/models/user.model';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     TokenModule,
-    UserModel
+    UserModel,
+    JwtModule
   ],
   controllers: [AuthController],
   providers: [AuthService]
