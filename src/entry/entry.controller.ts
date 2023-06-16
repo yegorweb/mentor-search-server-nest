@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { NextFunction } from 'express';
 import mongoose, { Model } from 'mongoose';
 import { AuthGuard } from 'src/auth/auth.guard';
 import ApiError from 'src/exceptions/errors/api-error';
@@ -10,6 +9,8 @@ import Entry from './interfaces/entry.interface';
 import { EntryClass } from './schemas/entry.schema';
 import isGlobalAdmin from 'src/admin/functions/is-global-admin.function';
 import { EntryType } from 'src/types/entry-type.type';
+import { TryToGetUser } from 'src/auth/try-to-get-user.guard';
+import RequestWithUserOrNot from 'src/types/request-with-user-or-not.type';
 
 @Controller('entry')
 export class EntryController {
@@ -18,20 +19,22 @@ export class EntryController {
     private EntryService: EntryService
   ) {} 
 
+  @UseGuards(TryToGetUser)
   @Get('get')
   async get(
+    @Req() req: RequestWithUserOrNot,
     @Query('town_id') town_id: string, 
     @Query('school_id') school_id: string, 
     @Query('type') type: EntryType, 
   ) {
-    return await this.EntryModel.find({ 
+    return this.EntryService.filter(await this.EntryModel.find({ 
+      type,
       on_moderation: false, 
       moderation_result: true, 
-      town: town_id, 
+      town: new mongoose.Types.ObjectId(town_id), 
       school: school_id === 'all' 
-        ? null : school_id,
-      type: type 
-    })
+        ? undefined : new mongoose.Types.ObjectId(school_id),
+    }), req.user, town_id, school_id)
   }
 
   @Get('get-by-id')
@@ -56,7 +59,7 @@ export class EntryController {
     @Body('entry') entry: Entry, 
   ) {
     if ((await this.EntryModel.find({ 
-      author: req.user._id, 
+      author: new mongoose.Types.ObjectId(req.user._id), 
       date: { 
         $gte: Date.now() - 1000*60*60*24, 
         $lt: Date.now() 
@@ -87,7 +90,7 @@ export class EntryController {
 
     if (!entry) 
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
-    if (entry.responses.length === entry.limit)
+    if (entry.responses.length >= entry.limit)
       throw ApiError.BadRequest('Вы не успели, лимит учеников уже достигнут')
 
     await this.EntryModel.findByIdAndUpdate(entry_id, { 
@@ -128,8 +131,8 @@ export class EntryController {
 
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
-    if (req.user._id !== entry.author.toString())
-      throw ApiError.BadRequest('Руки прочь от чужого!')
+    if (req.user._id !== entry.author._id.toString())
+      throw ApiError.AccessDenied()
 
     let admin = this.EntryService.isAdmin(req.user, entry)
 
@@ -139,6 +142,8 @@ export class EntryController {
         moderation_result: admin ? true : null 
       }
     ))
+
+    return { message: 'Отредактировано' }
   }
 
   @UseGuards(AuthGuard)
@@ -158,7 +163,7 @@ export class EntryController {
       return { message: 'Успешно удалено' }
     }
     else
-      throw ApiError.BadRequest('Руки прочь от чужого!')
+      throw ApiError.AccessDenied()
   }
 
   @UseGuards(AuthGuard)
@@ -179,7 +184,7 @@ export class EntryController {
         moderation_result 
       })
     else
-      throw ApiError.BadRequest('Руки прочь от чужого!')
+      throw ApiError.AccessDenied()
   }
 
   @UseGuards(AuthGuard)

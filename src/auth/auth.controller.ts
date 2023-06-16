@@ -106,7 +106,7 @@ export class AuthController {
 	@Post('update')
 	async update(
 		@Req() req: RequestWithUser,
-		@Body() new_user: UserFromClient
+		@Body('user') new_user: UserFromClient
 	) {
 		return await this.AuthService.update(new_user, req.user)
 	}

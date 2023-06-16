@@ -13,54 +13,66 @@ export type UserDocument = HydratedDocument<UserClass>
 export class UserClass {
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    min: 2
   })
   name: string
 
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    validators: {
+      validate: function(value: string) {
+        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)
+      }
+    }
   })
   email: string
 
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    min: 8,
+    max: 30
   })
   password: string
 
-  @Prop()
+  @Prop({
+    type: String,
+    max: 150
+  })
   description?: string
 
   @Prop()
   avatar_url?: string
 
-  @Prop({ 
-    type: Array<String>, 
-    default: [] 
-  })
-  ranks: string[]
+  @Prop()
+  ranks?: string[]
 
-  @Prop({ 
-    type: Array, 
-    default: [] 
-  })
-  achievements: Achievement[]
-
-  @Prop({ 
+  @Prop({
     type: [Object]
   })
-  answers?: Answer[]
+  achievements?: Achievement[]
 
   @Prop({ 
-    type: [Object], 
-    default: [] 
-  })  
-  contacts: Contact[]
+    type: [Object],
+    validators: {
+      validate: function(value: Contact[]) {
+        for (let item of value) {
+          if (!item.name || item.name.length===0 || !item.link || item.link.length===0)
+            return false
+        }
+        return value.length < 5
+      }
+    }
+  })
+  contacts?: Contact[]
 
   @Prop({ 
     type: Number, 
-    required: true 
+    required: true,
+    min: 0,
+    max: 11 
   })  
   grade: number
 
@@ -80,16 +92,16 @@ export class UserClass {
   })
   school: School
 
-  @Prop({ 
+  @Prop([{ 
     type: mongoose.Types.ObjectId, 
     ref: 'School',
-  })
+  }])
   administered_schools: mongoose.Types.ObjectId[]
 
   @Prop({ 
     type: Number, 
     required: true 
-  })  
+  })
   date?: number
 
   @Prop({

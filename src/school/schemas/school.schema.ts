@@ -8,7 +8,9 @@ export type SchoolDocument = HydratedDocument<SchoolClass>
 export class SchoolClass {
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    min: 2,
+    max: 30 
   })
   name: string
   

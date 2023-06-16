@@ -4,6 +4,7 @@ import School from 'src/school/interfaces/school.interface';
 import Town from 'src/town/interfaces/town.interface';
 import { EntryType } from 'src/types/entry-type.type';
 import { User } from 'src/user/interfaces/user.interface';
+import { AllEntryTypes } from 'src/types/entry-type.type';
 
 export type EntryDocument = HydratedDocument<EntryClass>
 
@@ -11,19 +12,28 @@ export type EntryDocument = HydratedDocument<EntryClass>
 export class EntryClass {
   @Prop({ 
     type: String, 
+    validate: {
+      validator: function(value: string) {
+        return AllEntryTypes.includes(value as EntryType)
+      }
+    },
     required: true 
   })
   type: EntryType
 
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    min: 4,
+    max: 25
   })
   subject: string
 
   @Prop({ 
     type: String, 
-    required: true 
+    required: true, 
+    min: 20,
+    max: 150 
   })
   description: string
 
@@ -35,22 +45,16 @@ export class EntryClass {
   })
   author: User
 
-  @Prop({ 
-    type: [{ 
-      type: mongoose.Types.ObjectId, 
-      ref: 'User'
-    }], 
-    required: true 
-  })
+  @Prop([{ 
+    type: mongoose.Types.ObjectId, 
+    ref: 'User',
+  }])
   responses: mongoose.Types.ObjectId[]
 
-  @Prop({ 
-    type: [{ 
-      type: mongoose.Types.ObjectId, 
-      ref: 'User'
-    }], 
-    required: true 
-  })
+  @Prop([{ 
+    type: mongoose.Types.ObjectId, 
+    ref: 'User',
+  }])
   banned: mongoose.Types.ObjectId[]
 
   @Prop({ 
@@ -72,10 +76,19 @@ export class EntryClass {
   @Prop({ 
     type: Number,
     required: true,
+    validate: {
+      validator: function(value: number) {
+        return value < Date.now()
+      }
+    }
   })
   date: number
 
-  @Prop()
+  @Prop({
+    type: Number,
+    min: 1,
+    max: 300
+  })
   limit: number
 
   @Prop({ 

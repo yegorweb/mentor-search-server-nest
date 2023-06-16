@@ -132,8 +132,13 @@ export class AuthService {
   }
   
   async update(new_user: UserFromClient, user: UserFromClient) {
-    return (await this.UserModel.findByIdAndUpdate(user._id, new_user, {
+    let roles = user.roles.filter(item => new_user.roles.includes('mentor') ? true : item !== 'mentor')
+
+    delete new_user.date
+    new_user = Object.assign(new_user, { roles })
+
+    return await this.UserModel.findByIdAndUpdate(user._id, new_user, {
       new: true
-    }))
+    })
   }
 }

@@ -7,7 +7,10 @@ export type TownDocument = HydratedDocument<TownClass>
 export class TownClass {
   @Prop({ 
     type: String, 
-    required: true 
+    required: true,
+    unique: true,
+    min: 2,
+    max: 30
   })
   name: string
 }
