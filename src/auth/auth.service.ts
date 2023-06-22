@@ -18,12 +18,13 @@ export class AuthService {
 
   async registration(user: User | UserFromClient) {
     const candidate = await this.UserModel.findOne({ email: user.email })
-    if (candidate) {
+    if (candidate)
       throw ApiError.BadRequest(`Пользователь с почтой ${user.email} уже существует`)
-    }  
  
     const password = await bcrypt.hash(user.password, 3)
-    const created_user = await this.UserModel.create(Object.assign(user, { password: password, roles: ['super_admin'] }))
+
+    let roles = ['student', user.roles.includes('mentor') ? 'mentor' : undefined]
+    const created_user = (await this.UserModel.create(Object.assign(user, { password, roles, date: Date.now() }))).toObject()
  
     const tokens = this.TokenService.generateTokens(created_user)
     await this.TokenService.saveToken(created_user._id, tokens.refreshToken)
@@ -62,7 +63,7 @@ export class AuthService {
     const userData = this.TokenService.validateRefreshToken(refreshToken)
     const tokenFromDb = await this.TokenService.findToken(refreshToken)
 
-    if (!userData || !tokenFromDb) {
+    if (!userData && !tokenFromDb) {
       throw ApiError.UnauthorizedError()
     }
 
@@ -79,9 +80,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword(data: { password: string, token: string, user_id: any }) {
-    let { password, token, user_id } = data
-
+  async resetPassword(password: string, token: string, user_id: any) {
     try {
       await this.validateEnterToResetPassword(user_id, token)
       

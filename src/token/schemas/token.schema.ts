@@ -7,7 +7,7 @@ export type TokenDocument = HydratedDocument<TokenClass>
 export class TokenClass {
   @Prop({ 
     required: true, 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'User',
   })
   user: mongoose.Types.ObjectId

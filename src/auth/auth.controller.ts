@@ -1,6 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Req, Res, UseGuards } from '@nestjs/common'
-import { NextFunction, Request, Response } from 'express';
-import mongoose from 'mongoose';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Request, Response } from 'express';
 import RequestWithUser from 'src/types/request-with-user.type';
 import { UserFromClient } from 'src/user/interfaces/user-from-client.interface';
 import { User } from 'src/user/interfaces/user.interface';
@@ -19,9 +18,12 @@ export class AuthController {
 	) {
 		const userData = await this.AuthService.registration(user)
 
+    let refreshToken = userData.refreshToken
+    delete userData.refreshToken
+
 		res.cookie(
 			'refreshToken', 
-			userData.refreshToken,
+			refreshToken,
 			{ 
 				maxAge: 30 * 24 * 60 * 60 * 1000, 
 				httpOnly: true, 
@@ -34,14 +36,17 @@ export class AuthController {
 	@Post('login')
 	async login(
 		@Res() res: Response, 
-		@Body() body: { email: string, password: string }
+		@Body('email') email: string, 
+    @Body('password') password: string 
 	) {
-		const { email, password } = body
 		const userData = await this.AuthService.login(email, password)
+
+    let refreshToken = userData.refreshToken
+    delete userData.refreshToken
 
 		res.cookie(
 			'refreshToken', 
-			userData.refreshToken, 
+			refreshToken, 
 			{ 
 				maxAge: 30 * 24 * 60 * 60 * 1000, 
 				httpOnly: true, 
@@ -59,9 +64,13 @@ export class AuthController {
 		const { refreshToken } = req.cookies
 
 		const userData = await this.AuthService.refresh(refreshToken)
-		res.cookie(
+		
+    let newRefreshToken = userData.refreshToken
+    delete userData.refreshToken
+
+    res.cookie(
 			'refreshToken', 
-			userData.refreshToken, 
+			newRefreshToken, 
 			{ 
 				maxAge: 30 * 24 * 60 * 60 * 1000, 
 				httpOnly: true,
@@ -79,20 +88,25 @@ export class AuthController {
 		const { refreshToken } = req.cookies
 
 		await this.AuthService.logout(refreshToken)
-		res.clearCookie('refreshToken')
+		res.clearCookie('refreshToken').send()
 	}
 	
 	@HttpCode(HttpStatus.OK)
   @Post('reset-password')
   async resetPassword(
 		@Res() res: Response, 
-		@Body() body: { password: string, token: string, user_id: mongoose.Types.ObjectId }
+		@Body('password') password: string, 
+    @Body('token') token: string, 
+    @Body('user_id') user_id: string
 	) {
-		const userData = await this.AuthService.resetPassword(body)
+		const userData = await this.AuthService.resetPassword(password, token, user_id)
+
+    let refreshToken = userData.refreshToken
+    delete userData.refreshToken
 
 		res.cookie(
 			'refreshToken', 
-			userData.refreshToken, 
+			refreshToken, 
 			{ 
 				maxAge: 30 * 24 * 60 * 60 * 1000, 
 				httpOnly: true,
@@ -114,9 +128,9 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@Post('send-reset-link')
 	async sendResetLink(
-		@Body() body: { email: string }
+		@Body('email') email: string
 	) {
-		let link = await this.AuthService.sendResetLink(body.email)	
+		let link = await this.AuthService.sendResetLink(email)	
 		return link
   }
 }

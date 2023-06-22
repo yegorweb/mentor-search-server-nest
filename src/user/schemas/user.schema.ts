@@ -3,7 +3,6 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import School from 'src/school/interfaces/school.interface';
 import Town from 'src/town/interfaces/town.interface';
 import { Achievement } from 'src/types/achievement.type';
-import { Answer } from 'src/types/answer.type';
 import { Contact } from 'src/types/contact.type';
 import { Roles } from 'src/types/role.type';
 
@@ -46,13 +45,17 @@ export class UserClass {
   @Prop()
   avatar_url?: string
 
-  @Prop()
-  ranks?: string[]
+  @Prop({
+    type: [String],
+    default: []
+  })
+  ranks: string[]
 
   @Prop({
-    type: [Object]
+    type: [Object],
+    default: []
   })
-  achievements?: Achievement[]
+  achievements: Achievement[]
 
   @Prop({ 
     type: [Object],
@@ -64,9 +67,10 @@ export class UserClass {
         }
         return value.length < 5
       }
-    }
+    },
+    default: []
   })
-  contacts?: Contact[]
+  contacts: Contact[]
 
   @Prop({ 
     type: Number, 
@@ -77,7 +81,7 @@ export class UserClass {
   grade: number
 
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'Town',
     required: true,
     autopopulate: true
@@ -85,18 +89,12 @@ export class UserClass {
   town: Town
 
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'School',
     required: true,
     autopopulate: true
   })
   school: School
-
-  @Prop([{ 
-    type: mongoose.Types.ObjectId, 
-    ref: 'School',
-  }])
-  administered_schools: mongoose.Types.ObjectId[]
 
   @Prop({ 
     type: Number, 

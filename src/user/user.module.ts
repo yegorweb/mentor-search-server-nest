@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
 import EntryModel from 'src/entry/models/entry.model';
-import { EntryClass, EntrySchema } from 'src/entry/schemas/entry.schema';
+import { RolesService } from 'src/roles/roles.service';
+import SchoolModel from 'src/school/models/school.model';
+import { SchoolService } from 'src/school/school.service';
 import UserModel from './models/user.model';
-import { UserClass, UserSchema } from './schemas/user.schema';
 import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
 @Module({
   imports: [
     UserModel,
     EntryModel,
+    SchoolModel,
     JwtModule
   ],
-  controllers: [UserController]
+  controllers: [UserController],
+  providers: [RolesService, UserService, SchoolService]
 })
 export class UserModule {}

@@ -20,7 +20,6 @@ export interface UserFromClient {
   grade: number
   town: Town
   school: School
-  administered_schools?: string[]
   date: number
   roles: Roles
 }

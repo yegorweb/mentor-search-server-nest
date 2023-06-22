@@ -71,7 +71,7 @@ export class TokenService {
 		}
 		
 		tokenData.refreshToken = refreshToken
-		return (await tokenData.save())
+		return await tokenData.save()
 	}
 
 	async removeToken(refreshToken: string) {

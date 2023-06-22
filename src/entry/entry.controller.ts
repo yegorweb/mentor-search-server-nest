@@ -7,34 +7,37 @@ import RequestWithUser from 'src/types/request-with-user.type';
 import { EntryService } from './entry.service';
 import Entry from './interfaces/entry.interface';
 import { EntryClass } from './schemas/entry.schema';
-import isGlobalAdmin from 'src/admin/functions/is-global-admin.function';
 import { EntryType } from 'src/types/entry-type.type';
 import { TryToGetUser } from 'src/auth/try-to-get-user.guard';
 import RequestWithUserOrNot from 'src/types/request-with-user-or-not.type';
+import { RolesService } from 'src/roles/roles.service';
 
 @Controller('entry')
 export class EntryController {
   constructor(
     @InjectModel('Entry') private EntryModel: Model<EntryClass>,
-    private EntryService: EntryService
+    private EntryService: EntryService,
+    private RolesService: RolesService
   ) {} 
 
   @UseGuards(TryToGetUser)
   @Get('get')
   async get(
     @Req() req: RequestWithUserOrNot,
-    @Query('town_id') town_id: string, 
-    @Query('school_id') school_id: string, 
     @Query('type') type: EntryType, 
+    @Query('school_id') school_id: string, 
+    @Query('town_id') town_id: string, 
   ) {
-    return this.EntryService.filter(await this.EntryModel.find({ 
+    let query: any = {
       type,
-      on_moderation: false, 
-      moderation_result: true, 
-      town: new mongoose.Types.ObjectId(town_id), 
-      school: school_id === 'all' 
-        ? undefined : new mongoose.Types.ObjectId(school_id),
-    }), req.user, town_id, school_id)
+      on_moderation: false,
+      moderation_result: true,
+      town: new mongoose.Types.ObjectId(town_id),
+    }
+    school_id === 'all' ? null : 
+      query.school = new mongoose.Types.ObjectId(school_id)
+
+    return this.EntryService.filter(await this.EntryModel.find(query), req.user, town_id, school_id)
   }
 
   @Get('get-by-id')
@@ -48,7 +51,7 @@ export class EntryController {
   async get_by_author(
     @Query('_id') _id: string, 
   ) {
-    return await this.EntryModel.find({ author: _id })
+    return await this.EntryModel.find({ author: new mongoose.Types.ObjectId(_id) })
   }
 
   @UseGuards(AuthGuard)
@@ -73,7 +76,7 @@ export class EntryController {
       Object.assign(entry, { 
         on_moderation: !admin, 
         moderation_result: admin ? true : null, 
-        author: req.user._id, 
+        author: new mongoose.Types.ObjectId(req.user._id), 
         date: Date.now() 
       })
     )
@@ -158,12 +161,11 @@ export class EntryController {
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно её удалили раньше вас')
 
-    if (this.EntryService.isAdmin(req.user, entry) || this.EntryService.isAuthor(req.user, entry)) {
-      await entry.deleteOne()
-      return { message: 'Успешно удалено' }
-    }
-    else
+    if (!this.EntryService.isAdmin(req.user, entry) && !this.EntryService.isAuthor(req.user, entry))
       throw ApiError.AccessDenied()
+
+    await entry.deleteOne()
+    return { message: 'Успешно удалено' }
   }
 
   @UseGuards(AuthGuard)
@@ -192,12 +194,12 @@ export class EntryController {
   async get_entries_to_moderation(
     @Req() req: RequestWithUser, 
   ) {
-    if (isGlobalAdmin(req.user))
+    if (this.RolesService.isGlobalAdmin(req.user.roles))
       return await this.EntryModel.find({ on_moderation: true })
 
     return await this.EntryModel.find({ 
       on_moderation: true, 
-      school: { $in: req.user.administered_schools } 
+      school: { $in: this.RolesService.getSchoolObjectIdsFromRoles(req.user.roles) } 
     })
   }
 }

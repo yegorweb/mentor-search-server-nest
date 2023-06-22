@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { EntryModule } from './entry/entry.module';
 import { TownModule } from './town/town.module';
 import { SchoolModule } from './school/school.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { SchoolModule } from './school/school.module';
     UserModule,
     EntryModule,
     TownModule,
-    SchoolModule
+    SchoolModule,
+    RolesModule
   ],
   controllers: [AppController],
   providers: [AppService],

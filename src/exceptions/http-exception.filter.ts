@@ -10,10 +10,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     console.log(exception)
 
-    if (exception instanceof ApiError) {
+    if (exception.getStatus() === 500)
+      return res.status(500).json({ message: 'Непредвиденная ошибка' })
+   
+    if (exception instanceof ApiError)
       return res.status(exception.error_code).json({ message: exception.message })
-    }
-
-    return res.status(500).json({ message: 'Непредвиденная ошибка' })
   }
 }

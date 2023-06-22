@@ -15,7 +15,7 @@ export class SchoolClass {
   name: string
   
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'Town', 
     required: true,
     autopopulate: true

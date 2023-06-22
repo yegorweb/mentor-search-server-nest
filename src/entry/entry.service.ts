@@ -1,35 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { roles } from 'src/config';
-import SchoolFromClient from 'src/school/interfaces/school-from-client.interface';
-import School from 'src/school/interfaces/school.interface';
-import TownFromClient from 'src/town/interfaces/town-from-client.interface';
-import Town from 'src/town/interfaces/town.interface';
+import mongoose from 'mongoose';
+import { RolesService } from 'src/roles/roles.service';
+import { UserFromClient } from 'src/user/interfaces/user-from-client.interface';
+import { User } from 'src/user/interfaces/user.interface';
+import EntryFromClient from './interfaces/entry-from-client.interface';
 import Entry from './interfaces/entry.interface';
 
 @Injectable()
 export class EntryService {
-  isAdmin(user, document): boolean {
+  constructor(
+    private RolesService: RolesService
+  ) {}
+
+  isAdmin(user: User | UserFromClient, document: Entry | EntryFromClient): boolean {
     return (
-      user.roles.includes(roles.school_admin) && 
-      user.administered_schools.some(item => item._id == document.school._id)
-    ) || user.roles.includes(roles.global_admin)
+      this.RolesService.isAdminOfSchool(
+        user.roles, 
+        new mongoose.Types.ObjectId(document.school._id).toString()
+      )
+    ) 
+      || 
+    this.RolesService.isGlobalAdmin(user.roles)
   }
   
-  isAuthor(user, document): boolean {
+  isAuthor(user: User | UserFromClient, document: Entry | EntryFromClient): boolean {
     return user._id == document.author._id
   }
 
   filter(entries: Entry[], user: any, town_id: string, school_id: string) {
     return entries.filter(entry => 
-      (
+      ( user ?
         !entry.responses.includes(user._id) &&
         !entry.banned.includes(user._id) &&
-        entry.author._id !== user._id
+        entry.author._id.toString() !== user._id
+        : true
       ) 
         && 
       (
-        entry.school._id.toString() == school_id || 
-        (entry.town._id.toString() === town_id && school_id === 'all')
+        entry.school._id.toString() === school_id || 
+        school_id === 'all'
       )
     )      
   }

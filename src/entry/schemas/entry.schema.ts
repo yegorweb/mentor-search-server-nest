@@ -38,7 +38,7 @@ export class EntryClass {
   description: string
 
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'User',
     required: true,
     autopopulate: true
@@ -46,19 +46,19 @@ export class EntryClass {
   author: User
 
   @Prop([{ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'User',
   }])
   responses: mongoose.Types.ObjectId[]
 
   @Prop([{ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'User',
   }])
   banned: mongoose.Types.ObjectId[]
 
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'Town',
     required: true,
     autopopulate: true
@@ -66,7 +66,7 @@ export class EntryClass {
   town: Town
 
   @Prop({ 
-    type: mongoose.Types.ObjectId, 
+    type: mongoose.SchemaTypes.ObjectId, 
     ref: 'School',
     required: true,
     autopopulate: true

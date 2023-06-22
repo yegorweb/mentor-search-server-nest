@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import mongoose, { Mongoose } from 'mongoose';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptions/http-exception.filter';
 const cookieParser = require('cookie-parser');
