@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { NextFunction } from 'express';
 import { Model } from 'mongoose';
 import { GlobalAdminGuard } from 'src/admin/global_admin.guard';
 import ApiError from 'src/exceptions/errors/api-error';
@@ -37,5 +36,6 @@ export class TownController {
     @Body('name') name: string, 
   ) {
     await this.TownModel.create({ name })
+    return { message: `Город ${name} создан` }
   }
 }

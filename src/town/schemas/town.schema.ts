@@ -9,6 +9,7 @@ export class TownClass {
     type: String, 
     required: true,
     unique: true,
+    index: true,
     min: 2,
     max: 30
   })
