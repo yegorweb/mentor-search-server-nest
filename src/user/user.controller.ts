@@ -77,6 +77,10 @@ export class UserController {
     if (!this.UserService.hasAccess(req.user.roles, user))
       throw ApiError.AccessDenied()
 
-    await this.UserModel.findByIdAndUpdate(user._id, user)
+    await this.UserModel.findByIdAndUpdate(user._id, {
+      roles: user.roles,
+      achievements: user.achievements,
+      ranks: user.ranks
+    })
   }
 }
