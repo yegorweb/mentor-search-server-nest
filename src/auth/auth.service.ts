@@ -27,7 +27,7 @@ export class AuthService {
     const created_user = (await this.UserModel.create(Object.assign(user, { password, roles, date: Date.now() }))).toObject()
  
     const tokens = this.TokenService.generateTokens(created_user)
-    await this.TokenService.saveToken(created_user._id, tokens.refreshToken)
+    await this.TokenService.saveToken(tokens.refreshToken)
     
     return {
       ...tokens,
@@ -48,7 +48,7 @@ export class AuthService {
     }
   
     const tokens = this.TokenService.generateTokens(user)
-    await this.TokenService.saveToken(user._id, tokens.refreshToken)
+    await this.TokenService.saveToken(tokens.refreshToken)
   
     return {
       ...tokens,
@@ -57,22 +57,21 @@ export class AuthService {
   }  
 
   async refresh(refreshToken: string) {
-    if (!refreshToken) {
+    if (!refreshToken)
       throw ApiError.UnauthorizedError()
-    }
+
     const userData = this.TokenService.validateRefreshToken(refreshToken)
     const tokenFromDb = await this.TokenService.findToken(refreshToken)
 
-    if (!userData && !tokenFromDb) {
+    if (!userData && !tokenFromDb)
       throw ApiError.UnauthorizedError()
-    }
 
     const user = (await this.UserModel.findById(userData._id)).toObject()
 
     await this.TokenService.removeToken(refreshToken)
 
     const tokens = this.TokenService.generateTokens(user)
-    await this.TokenService.saveToken(user._id, tokens.refreshToken)
+    await this.TokenService.saveToken(tokens.refreshToken)
  
     return {
       ...tokens,
@@ -88,7 +87,7 @@ export class AuthService {
       const user = await this.UserModel.findByIdAndUpdate(user_id, { password: hashPassword })
 
       const tokens = this.TokenService.generateTokens(user)
-      await this.TokenService.saveToken(user._id, tokens.refreshToken)
+      await this.TokenService.saveToken(tokens.refreshToken)
 
       return {
         ...tokens,

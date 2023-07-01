@@ -1,11 +1,10 @@
-import { Global, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as jwt from 'jsonwebtoken'
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from 'src/user/interfaces/user.interface';
 import { Token } from './interfaces/token.interface';
-import TokenModel from './models/token.model';
 import { TokenClass } from './schemas/token.schema';
 
 @Injectable()
@@ -63,15 +62,8 @@ export class TokenService {
 		}
 	}
 
-	async saveToken(user: mongoose.Types.ObjectId, refreshToken: string): Promise<Token> {
-		const tokenData = await this.TokenModel.findOne({ user })
-		if (!tokenData) {
-			const token = await this.TokenModel.create({ user, refreshToken })
-			return token
-		}
-		
-		tokenData.refreshToken = refreshToken
-		return await tokenData.save()
+	async saveToken(refreshToken: string): Promise<Token> {
+		return await this.TokenModel.create({ refreshToken })
 	}
 
 	async removeToken(refreshToken: string) {
