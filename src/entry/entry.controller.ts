@@ -37,7 +37,9 @@ export class EntryController {
     school_id === 'all' ? null : 
       query.school = new mongoose.Types.ObjectId(school_id)
 
-    return this.EntryService.filter(await this.EntryModel.find(query), req.user, town_id, school_id)
+    return this.EntryService.shuffle(
+      this.EntryService.filter(await this.EntryModel.find(query), req.user, town_id, school_id)
+    )
   }
 
   @Get('get-by-id')
