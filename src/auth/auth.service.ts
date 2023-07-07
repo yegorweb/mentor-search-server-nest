@@ -20,7 +20,9 @@ export class AuthService {
     const candidate = await this.UserModel.findOne({ email: user.email })
     if (candidate)
       throw ApiError.BadRequest(`Пользователь с почтой ${user.email} уже существует`)
- 
+
+    if (user.password.length < 8)
+      throw ApiError.BadRequest('Слишком короткий пароль')
     const password = await bcrypt.hash(user.password, 3)
 
     let roles = ['student', user.roles.includes('mentor') ? 'mentor' : undefined]
@@ -42,6 +44,9 @@ export class AuthService {
       throw ApiError.BadRequest('Пользователь с таким email не найден')
     }
   
+    if (user.password.length < 8)
+      throw ApiError.BadRequest('Слишком короткий пароль')
+    
     const isPassEquals = await bcrypt.compare(password, user.password)
     if (!isPassEquals) {
       throw ApiError.BadRequest('Неверный пароль')
