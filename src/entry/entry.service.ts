@@ -29,17 +29,11 @@ export class EntryService {
 
   filter(entries: Entry[], user: any, town_id: string, school_id: string) {
     return entries.filter(entry => 
-      ( user ?
+      user ?
         !entry.responses.includes(user._id) &&
         !entry.banned.includes(user._id) &&
         entry.author._id.toString() !== user._id
-        : true
-      ) 
-        && 
-      (
-        entry.school._id.toString() === school_id || 
-        school_id === 'all'
-      )
+      : true 
     )      
   }
 
