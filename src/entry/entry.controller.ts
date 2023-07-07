@@ -182,13 +182,13 @@ export class EntryController {
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
 
-    if (this.EntryService.isAdmin(req.user, entry))
-      await entry.updateOne({ 
-        on_moderation: false, 
-        moderation_result 
-      })
-    else
+    if (!this.EntryService.isAdmin(req.user, entry))
       throw ApiError.AccessDenied()
+    
+    await entry.updateOne({ 
+      on_moderation: false, 
+      moderation_result 
+    })
   }
 
   @UseGuards(AuthGuard)
@@ -201,7 +201,10 @@ export class EntryController {
 
     return await this.EntryModel.find({ 
       on_moderation: true, 
-      school: { $in: this.RolesService.getSchoolObjectIdsFromRoles(req.user.roles) } 
+      school: { 
+        $in: this.RolesService.getSchoolObjectIdsFromRoles(req.user.roles) 
+      } 
     })
   }
 }
+
