@@ -2,7 +2,6 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query, Req, Us
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { roles } from 'src/config';
 import { EntryClass } from 'src/entry/schemas/entry.schema';
 import ApiError from 'src/exceptions/errors/api-error';
 import { RolesService } from 'src/roles/roles.service';

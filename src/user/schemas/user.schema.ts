@@ -4,7 +4,6 @@ import School from 'src/school/interfaces/school.interface';
 import Town from 'src/town/interfaces/town.interface';
 import { Achievement } from 'src/types/achievement.type';
 import { Contact } from 'src/types/contact.type';
-import { Roles } from 'src/types/role.type';
 
 export type UserDocument = HydratedDocument<UserClass>
 
@@ -103,11 +102,11 @@ export class UserClass {
   date?: number
 
   @Prop({
-    type: Array, 
+    type: [String], 
     default: ['student'],
     required: true
   })
-  roles: Roles
+  roles: string
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserClass)

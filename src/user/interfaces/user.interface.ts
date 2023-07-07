@@ -4,7 +4,6 @@ import Town from "src/town/interfaces/town.interface"
 import { Achievement } from "src/types/achievement.type"
 import { Answer } from "src/types/answer.type"
 import { Contact } from "src/types/contact.type"
-import { Roles } from "src/types/role.type"
 
 export interface User {
   _id: mongoose.Types.ObjectId
@@ -21,5 +20,5 @@ export interface User {
   town: Town
   school: School
   date: number
-  roles: Roles
+  roles: string[]
 }
