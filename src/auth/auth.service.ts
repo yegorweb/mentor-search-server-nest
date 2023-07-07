@@ -141,7 +141,8 @@ export class AuthService {
     new_user = Object.assign(new_user, { roles })
 
     return await this.UserModel.findByIdAndUpdate(user._id, new_user, {
-      new: true
+      new: true,
+      runValidators: true
     })
   }
 }

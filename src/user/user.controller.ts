@@ -80,6 +80,6 @@ export class UserController {
       roles: user.roles,
       achievements: user.achievements,
       ranks: user.ranks
-    })
+    }, { runValidators: true })
   }
 }

@@ -146,7 +146,7 @@ export class EntryController {
         on_moderation: !admin, 
         moderation_result: admin ? true : null 
       }
-    ))
+    ), { runValidators: true })
 
     return { message: 'Отредактировано' }
   }
