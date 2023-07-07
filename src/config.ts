@@ -1,3 +1,2 @@
-import Entry from "./entry/interfaces/entry.interface"
-import { User } from "./user/interfaces/user.interface"
+export const AllEntryTypes = ['mentor', 'lesson', 'club'] as const
 

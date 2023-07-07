@@ -1,3 +1,3 @@
-export const AllEntryTypes = ['mentor', 'lesson', 'club'] as const
+import { AllEntryTypes } from "src/config";
 
 export type EntryType = typeof AllEntryTypes[number]
