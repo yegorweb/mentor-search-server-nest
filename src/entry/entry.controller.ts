@@ -104,7 +104,7 @@ export class EntryController {
   ) {
     this.EntryService.checkLimit(req.user)
     
-    let admin = this.EntryService.isAdmin(req.user, entry)
+    let admin = this.EntryService.isAdmin(req.user.roles, entry)
 
     return await this.EntryModel.create(
       Object.assign(entry, { 
@@ -130,7 +130,7 @@ export class EntryController {
     if (entry.responses.length >= entry.limit)
       throw ApiError.BadRequest('Вы не успели, лимит учеников уже достигнут')
 
-    await this.EntryModel.findByIdAndUpdate(entry_id, { 
+    await entry.updateOne({ 
       $push: { 
         responses: new mongoose.Types.ObjectId(req.user._id) 
       } 
@@ -149,7 +149,7 @@ export class EntryController {
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
 
-    await this.EntryModel.findByIdAndUpdate(entry_id, { 
+    await entry.updateOne({ 
       $pull: { 
         responses: new mongoose.Types.ObjectId(req.user._id) 
       } 
@@ -171,7 +171,7 @@ export class EntryController {
     if (req.user._id !== entry.author._id.toString())
       throw ApiError.AccessDenied()
 
-    let admin = this.EntryService.isAdmin(req.user, entry)
+    let admin = this.EntryService.isAdmin(req.user.roles, entry)
 
     await entry.updateOne(Object.assign(
       new_entry, { 
@@ -195,7 +195,7 @@ export class EntryController {
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно её удалили раньше вас')
 
-    if (!this.EntryService.isAdmin(req.user, entry) && !this.EntryService.isAuthor(req.user, entry))
+    if (!this.EntryService.isAdmin(req.user.roles, entry) && !this.EntryService.isAuthor(req.user, entry))
       throw ApiError.AccessDenied()
 
     await entry.deleteOne()
@@ -214,7 +214,7 @@ export class EntryController {
     if (!entry)
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
 
-    if (!this.EntryService.isAdmin(req.user, entry))
+    if (!this.EntryService.isAdmin(req.user.roles, entry))
       throw ApiError.AccessDenied()
     
     await entry.updateOne({ 
