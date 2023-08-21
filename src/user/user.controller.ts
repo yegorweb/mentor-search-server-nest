@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { SomeAdminGuard } from 'src/admin/some_admin.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { EntryClass } from 'src/entry/schemas/entry.schema';
 import ApiError from 'src/exceptions/errors/api-error';
@@ -18,7 +19,6 @@ export class UserController {
     @InjectModel('User') private UserModel: Model<UserClass>,
     @InjectModel('Entry') private EntryModel: Model<EntryClass>,
     @InjectModel('School') private SchoolModel: Model<SchoolClass>,
-    private RolesService: RolesService,
     private UserService: UserService,
     private SchoolService: SchoolService
   ) {} 
@@ -47,7 +47,7 @@ export class UserController {
     })
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(SomeAdminGuard)
   @Get('get-all-by-school')
   async get_all_by_school(
     @Req() req: RequestWithUser, 
@@ -67,7 +67,7 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(SomeAdminGuard)
   @Post('change-user')
   async changeUser(
     @Req() req: RequestWithUser,
