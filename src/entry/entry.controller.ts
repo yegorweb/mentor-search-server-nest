@@ -65,11 +65,25 @@ export class EntryController {
     return await this.EntryModel.findById(_id)
   }
 
+  @UseGuards(TryToGetUser)
   @Get('get-by-author')
   async get_by_author(
+    @Req() req: RequestWithUserOrNot,
     @Query('_id') _id: string, 
   ) {
-    return await this.EntryModel.find({ author: new mongoose.Types.ObjectId(_id) })
+    let query: any = {
+      author: new mongoose.Types.ObjectId(_id)
+    }
+    if (req.user) {
+      query.banned = {
+        $not: {
+          $in: [new mongoose.Types.ObjectId(req.user._id)]
+        }
+      }  
+    }
+
+    return await this.EntryModel.find(query)
+  }
   }
 
   @UseGuards(AuthGuard)
