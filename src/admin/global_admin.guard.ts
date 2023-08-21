@@ -2,11 +2,15 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import ApiError from 'src/exceptions/errors/api-error';
+import { RolesService } from 'src/roles/roles.service';
 import { User } from 'src/user/interfaces/user.interface';
 
 @Injectable()
 export class GlobalAdminGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private RolesService: RolesService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
@@ -18,7 +22,7 @@ export class GlobalAdminGuard implements CanActivate {
     try {
       const payload: User = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_ACCESS_SECRET })
 
-      if (!payload.roles.includes('global-admin'))
+      if (!this.RolesService.isGlobalAdmin(payload.roles))
         throw ApiError.AccessDenied()
 
       request.user = payload
