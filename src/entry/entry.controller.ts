@@ -84,6 +84,15 @@ export class EntryController {
 
     return await this.EntryModel.find(query)
   }
+
+  @UseGuards(AuthGuard)
+  @Get('get-my-entries')
+  async get_my_entries(
+    @Req() req: RequestWithUser
+  ) {
+    return await this.EntryModel.find({
+      author: new mongoose.Types.ObjectId(req.user._id)
+    })
   }
 
   @UseGuards(AuthGuard)
