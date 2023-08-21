@@ -235,7 +235,10 @@ export class EntryController {
       on_moderation: true, 
       school: { 
         $in: this.RolesService.getSchoolObjectIdsFromRoles(req.user.roles) 
-      } 
+      },
+      town: {
+        $in: this.RolesService.getTownObjectIdsFromRoles(req.user.roles)
+      }
     })
   }
 }
