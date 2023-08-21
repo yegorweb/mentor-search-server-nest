@@ -102,14 +102,7 @@ export class EntryController {
     @Req() req: RequestWithUser, 
     @Body('entry') entry: Entry, 
   ) {
-    if ((await this.EntryModel.find({ 
-      author: new mongoose.Types.ObjectId(req.user._id), 
-      date: { 
-        $gte: Date.now() - 1000*60*60*24, 
-        $lt: Date.now() 
-      } 
-    })).length > 10)
-      throw ApiError.BadRequest('Превышен лимит создания за день. Успокойтесь или вас удалят')
+    this.EntryService.checkLimit(req.user)
     
     let admin = this.EntryService.isAdmin(req.user, entry)
 
