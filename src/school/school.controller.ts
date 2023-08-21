@@ -1,7 +1,6 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Next, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { GlobalAdminGuard } from 'src/admin/global_admin.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import ApiError from 'src/exceptions/errors/api-error';
 import { RolesService } from 'src/roles/roles.service';
@@ -56,12 +55,26 @@ export class SchoolController {
     )]
   }
 
-  @UseGuards(GlobalAdminGuard)
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('create')
   async create(
     @Body('name') name: string, 
+    @Body('town_id') town: string,
+    @Req() req: RequestWithUser
   ) {
-    await this.SchoolModel.create({ name, date: Date.now() })
+    if (
+      !this.RolesService.isAdminOfTown(req.user.roles, town) &&
+      !this.RolesService.isGlobalAdmin(req.user.roles)
+    ) 
+      throw ApiError.AccessDenied()
+
+    await this.SchoolModel.create({ 
+      name, 
+      town,
+      date: Date.now() 
+    })
+
+    return { message: `ОУ «${name}» создано` }
   }
 }
