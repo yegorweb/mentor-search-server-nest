@@ -76,7 +76,15 @@ export class UserController {
     if (!this.UserService.hasAccess(req.user.roles, user))
       throw ApiError.AccessDenied()
 
-    await this.UserModel.findByIdAndUpdate(user._id, {
+    let subject_user = await this.UserModel.findById(user._id)
+    
+    await this.UserService.checkAccessToRoles(
+      req.user.roles,
+      subject_user.roles,
+      user.roles
+    )
+
+    await subject_user.updateOne({
       roles: user.roles,
       achievements: user.achievements,
       ranks: user.ranks
