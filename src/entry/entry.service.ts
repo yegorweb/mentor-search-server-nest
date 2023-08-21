@@ -16,15 +16,18 @@ export class EntryService {
     private RolesService: RolesService
   ) {}
 
-  isAdmin(user: User | UserFromClient, document: Entry | EntryFromClient): boolean {
+  isAdmin(roles: string[], document: Entry | EntryFromClient): boolean {
     return (
       this.RolesService.isAdminOfSchool(
-        user.roles, 
+        roles, 
         new mongoose.Types.ObjectId(document.school._id).toString()
-      )
-    ) 
-      || 
-    this.RolesService.isGlobalAdmin(user.roles)
+      ) || 
+      this.RolesService.isAdminOfTown(
+        roles, 
+        new mongoose.Types.ObjectId(document.town._id).toString()
+      ) ||
+      this.RolesService.isGlobalAdmin(roles)
+    )
   }
   
   isAuthor(user: User | UserFromClient, document: Entry | EntryFromClient): boolean {
