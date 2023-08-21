@@ -54,10 +54,24 @@ export class RolesService {
   }
 
   isSomeAdmin(roles: string[]): boolean {
-    return roles.some(item => item.includes('school-admin-') || item.includes('town-admin-'))
+    return roles.some(item => item.split('-')[1] === 'admin')
   }
 
   isGlobalAdmin(roles: string[]) {
     return roles.includes('global-admin')
   }  
+
+  isMentor(roles: string[]): boolean {
+    return roles.includes('mentor')
+  }
+
+  getType(roles: string[]): string {
+    if (this.isSomeAdmin(roles))
+      return 'админ'
+      
+    if (this.isMentor(roles))
+      return 'наставник'
+      
+    return 'наставляемый'
+  }
 }
