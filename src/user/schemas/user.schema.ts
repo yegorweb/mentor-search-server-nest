@@ -104,7 +104,7 @@ export class UserClass {
     default: ['student'],
     required: true
   })
-  roles: string
+  roles: string[]
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserClass)
