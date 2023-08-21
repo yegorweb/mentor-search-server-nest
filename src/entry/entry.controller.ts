@@ -37,7 +37,25 @@ export class EntryController {
     school_id === 'all' ? null : 
       query.school = new mongoose.Types.ObjectId(school_id)
 
-    return this.EntryService.filter(await this.EntryModel.find(query), req.user, town_id, school_id)
+    if (req.user) {
+      query = Object.assign(query, {
+        responses: {
+          $not: {
+            $in: [new mongoose.Types.ObjectId(req.user._id)]
+          }
+        },
+        banned: {
+          $not: {
+            $in: [new mongoose.Types.ObjectId(req.user._id)]
+          }
+        },
+        author: {
+          $ne: new mongoose.Types.ObjectId(req.user._id) 
+        }
+      })
+    }
+
+    return await this.EntryModel.find(query)
   }
 
   @Get('get-by-id')

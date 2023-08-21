@@ -27,13 +27,5 @@ export class EntryService {
     return user._id == document.author._id
   }
 
-  filter(entries: Entry[], user: any, town_id: string, school_id: string) {
-    return entries.filter(entry => 
-      user ?
-        !entry.responses.includes(user._id) &&
-        !entry.banned.includes(user._id) &&
-        entry.author._id.toString() !== user._id
-      : true 
-    )      
   }
 }
