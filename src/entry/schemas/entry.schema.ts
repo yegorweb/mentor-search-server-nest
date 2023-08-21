@@ -25,7 +25,7 @@ export class EntryClass {
     type: String, 
     required: true,
     min: 4,
-    max: 25
+    max: 32
   })
   subject: string
 
