@@ -1,11 +1,12 @@
-import { Global, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { TokenService } from 'src/token/token.service'
-import mongoose, { Model } from 'mongoose'
+import { Model } from 'mongoose'
 import ApiError from 'src/exceptions/errors/api-error'
 import { InjectModel } from '@nestjs/mongoose'
 import { UserClass } from 'src/user/schemas/user.schema'
 import { User } from 'src/user/interfaces/user.interface'
 import { UserFromClient } from 'src/user/interfaces/user-from-client.interface'
+import { RolesService } from 'src/roles/roles.service'
 
 let bcrypt = require('bcrypt')
 
@@ -14,6 +15,7 @@ export class AuthService {
   constructor(
     @InjectModel('User') private UserModel: Model<UserClass>,
     private TokenService: TokenService,
+    private RolesService: RolesService
   ) {}
 
   async registration(user: User | UserFromClient) {
@@ -135,7 +137,8 @@ export class AuthService {
   }
   
   async update(new_user: UserFromClient, user: UserFromClient) {
-    let roles = user.roles.filter(item => new_user.roles.includes('mentor') ? true : item !== 'mentor')
+    let roles = user.roles
+    this.RolesService.isMentor(new_user.roles) && !this.RolesService.isMentor(user.roles) ? roles.push('mentor') : null
 
     delete new_user.date
     new_user = Object.assign(new_user, { roles })
