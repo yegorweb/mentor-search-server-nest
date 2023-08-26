@@ -19,6 +19,7 @@ export class UserService {
     return this.RolesService.isAdminOfSchool(roles, new mongoose.Types.ObjectId(user.school._id).toString()) ||
            this.RolesService.isAdminOfTown(roles, new mongoose.Types.ObjectId(user.town._id).toString()) ||
            this.RolesService.isGlobalAdmin(roles)
+  }
 
   async checkAccessToRoles(
     assigning_user_roles: string[], 
