@@ -7,14 +7,26 @@ export class RolesService {
     return role.split('-')[2]
   }
 
+  getObjectIdFromRole(role: string): mongoose.Types.ObjectId {
+    return new mongoose.Types.ObjectId(this.getIdFromRole(role))
+  }
+
   getSchoolIdsFromRoles(roles: string[]): string[] {
     return roles
       .filter(item => item.includes('school-admin-'))
       .map(item => item.split('school-admin-')[1])
   }
 
+  getSchoolIdFromRole(role: string): string {
+    return role.split('school-admin-')[1]
+  }
+
   getSchoolObjectIdsFromRoles(roles: string[]): mongoose.Types.ObjectId[] {
     return this.getSchoolIdsFromRoles(roles).map(item => new mongoose.Types.ObjectId(item))
+  }
+
+  getSchoolObjectIdFromRole(role: string): mongoose.Types.ObjectId {
+    return new mongoose.Types.ObjectId(role.split('school-admin-')[1])
   }
 
   getTownIdsFromRoles(roles: string[]): string[] {
@@ -23,8 +35,16 @@ export class RolesService {
       .map(item => item.split('town-admin-')[1])
   }
 
+  getTownIdFromRole(role: string): string {
+    return role.split('town-admin-')[1]
+  }
+
   getTownObjectIdsFromRoles(roles: string[]): mongoose.Types.ObjectId[] {
     return this.getTownIdsFromRoles(roles).map(item => new mongoose.Types.ObjectId(item))
+  }
+
+  getTownObjectIdFromRole(role: string): mongoose.Types.ObjectId {
+    return new mongoose.Types.ObjectId(this.getTownIdFromRole(role))
   }
 
   isAdminOfSchool(roles: string[], school_id: string): boolean {
