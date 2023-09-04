@@ -85,6 +85,10 @@ export class RolesService {
     return roles.includes('mentor')
   }
 
+  isOwner(roles: string[]): boolean {
+    return roles.includes('owner')
+  }
+
   getType(roles: string[]): string {
     if (this.isSomeAdmin(roles))
       return 'админ'
