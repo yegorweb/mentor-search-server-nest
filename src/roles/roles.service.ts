@@ -13,8 +13,8 @@ export class RolesService {
 
   getSchoolIdsFromRoles(roles: string[]): string[] {
     return roles
-      .filter(item => item.includes('school-admin-'))
-      .map(item => item.split('school-admin-')[1])
+      .filter(role => role.includes('school-admin-'))
+      .map(role => this.getIdFromRole(role))
   }
 
   getSchoolIdFromRole(role: string): string {
@@ -31,8 +31,8 @@ export class RolesService {
 
   getTownIdsFromRoles(roles: string[]): string[] {
     return roles
-      .filter(item => item.includes('town-admin-'))
-      .map(item => item.split('town-admin-')[1])
+      .filter(role => role.includes('town-admin-'))
+      .map(role => this.getIdFromRole(role))
   }
 
   getTownIdFromRole(role: string): string {
@@ -66,15 +66,15 @@ export class RolesService {
   }
 
   getRolesWithoutSchool(roles: string[], school_id: string): string[] {
-    return roles.filter(item => !item.includes(`school-admin-${school_id}`))
+    return roles.filter(role => !role.includes(`school-admin-${school_id}`))
   }
 
   getRolesWithoutTown(roles: string[], town_id: string): string[] {
-    return roles.filter(item => !item.includes(`town-admin-${town_id}`))
+    return roles.filter(role => !role.includes(`town-admin-${town_id}`))
   }
 
   isSomeAdmin(roles: string[]): boolean {
-    return roles.some(item => item.split('-')[1] === 'admin')
+    return roles.some(role => role.split('-')[1] === 'admin')
   }
 
   isGlobalAdmin(roles: string[]) {
