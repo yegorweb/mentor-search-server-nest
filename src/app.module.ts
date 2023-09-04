@@ -15,7 +15,6 @@ import { S3Module } from './s3/s3.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: 'development.env',
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_URL, {
