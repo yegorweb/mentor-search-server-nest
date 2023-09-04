@@ -90,4 +90,14 @@ export class UserController {
       ranks: user.ranks
     }, { runValidators: true })
   }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('have-i-access-to-role')
+  async haveIAccessToRole(
+    @Req() req: RequestWithUser,
+    @Query('role') role: string
+  ): Promise<boolean> {
+    return await this.UserService.hasAccessToRole(req.user.roles, role)
+  }
 }
