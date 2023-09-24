@@ -88,7 +88,7 @@ export class UserClass {
     type: Number, 
     required: true 
   })
-  date?: number
+  date: number
 
   @Prop({
     type: [String], 
