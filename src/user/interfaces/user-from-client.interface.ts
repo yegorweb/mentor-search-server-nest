@@ -1,4 +1,3 @@
-import mongoose from "mongoose"
 import School from "src/school/interfaces/school.interface"
 import { Achievement } from "src/types/achievement.type"
 import { Answer } from "src/types/answer.type"
