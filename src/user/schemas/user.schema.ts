@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import School from 'src/school/interfaces/school.interface';
-import Town from 'src/town/interfaces/town.interface';
 import { Achievement } from 'src/types/achievement.type';
 import { Contact } from 'src/types/contact.type';
 
@@ -76,14 +75,6 @@ export class UserClass {
     max: 11 
   })  
   grade: number
-
-  @Prop({ 
-    type: mongoose.SchemaTypes.ObjectId, 
-    ref: 'Town',
-    required: true,
-    autopopulate: true
-  })
-  town: Town
 
   @Prop({ 
     type: mongoose.SchemaTypes.ObjectId, 

@@ -24,7 +24,7 @@ export class EntryService {
       ) || 
       this.RolesService.isAdminOfTown(
         roles, 
-        new mongoose.Types.ObjectId(document.town._id).toString()
+        new mongoose.Types.ObjectId(document.school.town._id).toString()
       ) ||
       this.RolesService.isGlobalAdmin(roles)
     )

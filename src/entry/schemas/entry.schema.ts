@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { AllEntryTypes } from 'src/config';
 import School from 'src/school/interfaces/school.interface';
-import Town from 'src/town/interfaces/town.interface';
 import { EntryType } from 'src/types/entry-type.type';
 import { User } from 'src/user/interfaces/user.interface';
 
@@ -56,14 +55,6 @@ export class EntryClass {
     ref: 'User',
   }])
   banned: mongoose.Types.ObjectId[]
-
-  @Prop({ 
-    type: mongoose.SchemaTypes.ObjectId, 
-    ref: 'Town',
-    required: true,
-    autopopulate: true
-  })
-  town: Town
 
   @Prop({ 
     type: mongoose.SchemaTypes.ObjectId, 
