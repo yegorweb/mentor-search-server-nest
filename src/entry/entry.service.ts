@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import ApiError from 'src/exceptions/errors/api-error';
 import { RolesService } from 'src/roles/roles.service';
+import { SchoolClass } from 'src/school/schemas/school.schema';
 import { UserFromClient } from 'src/user/interfaces/user-from-client.interface';
 import { User } from 'src/user/interfaces/user.interface';
 import EntryFromClient from './interfaces/entry-from-client.interface';
@@ -13,6 +14,7 @@ import { EntryClass } from './schemas/entry.schema';
 export class EntryService {
   constructor(
     @InjectModel('Entry') private EntryModel: Model<EntryClass>,
+    @InjectModel('School') private SchoolModel: Model<SchoolClass>,
     private RolesService: RolesService
   ) {}
 
@@ -25,6 +27,19 @@ export class EntryService {
       this.RolesService.isAdminOfTown(
         roles, 
         new mongoose.Types.ObjectId(document.school.town._id).toString()
+      ) ||
+      this.RolesService.isGlobalAdmin(roles)
+    )
+  }
+
+  async beforeCreateIsAdmin(roles: string[], entry): Promise<boolean> {
+    let town = await this.SchoolModel.findById(entry.school)
+    return (
+      this.RolesService.isAdminOfSchool(
+        roles, entry.school
+      ) || 
+      this.RolesService.isAdminOfTown(
+        roles, town._id.toString()
       ) ||
       this.RolesService.isGlobalAdmin(roles)
     )
