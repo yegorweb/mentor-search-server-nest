@@ -122,7 +122,7 @@ export class AuthController {
 		@Req() req: RequestWithUser,
 		@Body('user') new_user: UserFromClient
 	) {
-		return await this.AuthService.update(new_user, req.user)
+		await this.AuthService.update(new_user, req.user)
 	}
   
 	@HttpCode(HttpStatus.OK)
