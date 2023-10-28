@@ -127,7 +127,7 @@ export class EntryController {
 
     if (!entry) 
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
-    if (entry.responses.length >= entry.limit)
+    if (entry.limit && entry.responses.length >= entry.limit)
       throw ApiError.BadRequest('Вы не успели, лимит учеников уже достигнут')
 
     await entry.updateOne({ 
