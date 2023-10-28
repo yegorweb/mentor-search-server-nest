@@ -7,8 +7,7 @@ import { UserClass } from 'src/user/schemas/user.schema'
 import { User } from 'src/user/interfaces/user.interface'
 import { UserFromClient } from 'src/user/interfaces/user-from-client.interface'
 import { RolesService } from 'src/roles/roles.service'
-
-let bcrypt = require('bcrypt')
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class AuthService {
