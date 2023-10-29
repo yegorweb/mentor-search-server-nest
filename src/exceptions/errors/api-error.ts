@@ -10,15 +10,15 @@ export default class ApiError extends HttpException {
 		this.errors = errors
 	}
 
-	static UnauthorizedError() {
-		return new ApiError(401, 'Вы не авторизованы')
+	static UnauthorizedError(message: string | null = null) {
+		return new ApiError(401, message ?? 'Вы не авторизованы')
 	}
 
 	static BadRequest(message: string, errors = []) {
 		return new ApiError(400, message, errors)
 	}
 
-	static AccessDenied() {
-		return new ApiError(HttpStatus.NOT_ACCEPTABLE, 'Отказано в доступе')
+	static AccessDenied(message: string | null = null) {
+		return new ApiError(HttpStatus.NOT_ACCEPTABLE, message ?? 'Отказано в доступе')
 	}
 }
