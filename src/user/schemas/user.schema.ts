@@ -20,7 +20,7 @@ export class UserClass {
     required: true,
     validators: {
       validate: function(value: string) {
-        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)
+        return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(value)
       }
     }
   })
