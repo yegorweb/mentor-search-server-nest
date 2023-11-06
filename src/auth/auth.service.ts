@@ -74,6 +74,9 @@ export class AuthService {
 
     const user = (await this.UserModel.findById(userData._id)).toObject()
 
+    if (userData.password !== user.password)
+      throw ApiError.AccessDenied('Аутентификация провалена. Пароль изменен')
+
     await this.TokenService.removeToken(refreshToken)
 
     const tokens = this.TokenService.generateTokens(user)
