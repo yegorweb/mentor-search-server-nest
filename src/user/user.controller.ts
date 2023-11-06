@@ -27,12 +27,9 @@ export class UserController {
   async get_by_id(
     @Query('_id') _id: string, 
   ) {
-    let candidate = await this.UserModel.findById(_id)
-    if (!candidate) {
+    let candidate = await this.UserModel.findById(_id, { password: 0 })
+    if (!candidate)
       throw ApiError.BadRequest('Пользователь с таким ID не найден')
-    }
-
-    delete candidate.password
 
     return candidate
   }

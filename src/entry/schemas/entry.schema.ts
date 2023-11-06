@@ -40,7 +40,7 @@ export class EntryClass {
     type: mongoose.SchemaTypes.ObjectId, 
     ref: 'User',
     required: true,
-    autopopulate: true
+    autopopulate: { select: '-password' }
   })
   author: User
 
