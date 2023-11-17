@@ -55,7 +55,7 @@ export class EntryController {
       })
     }
 
-    return await this.EntryModel.find(query)
+    return await this.EntryModel.find(query, { subject: 1 , description: 1, author: 1, responses: 1, school: 1, limit: 1 })
   }
 
   @Get('get-by-id')
@@ -82,7 +82,7 @@ export class EntryController {
       }  
     }
 
-    return await this.EntryModel.find(query)
+    return await this.EntryModel.find(query, { type: 1, subject: 1 , description: 1, responses: 1, school: 1, limit: 1 })
   }
 
   @UseGuards(AuthGuard)
@@ -92,7 +92,7 @@ export class EntryController {
   ) {
     return await this.EntryModel.find({
       author: new mongoose.Types.ObjectId(req.user._id)
-    })
+    }, { date: 0, banned: 0 })
   }
 
   @UseGuards(AuthGuard)
