@@ -127,6 +127,8 @@ export class EntryController {
 
     if (!entry) 
       throw ApiError.BadRequest('Запись не обнаружена. Возможно, её удалили')
+    if (entry.author._id.toString() == req.user._id)
+      throw ApiError.BadRequest('Нельзя откликаться на свои записи')
     if (entry.limit && entry.responses.length >= entry.limit)
       throw ApiError.BadRequest('Вы не успели, лимит учеников уже достигнут')
 
