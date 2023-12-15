@@ -29,6 +29,8 @@ export class UserService {
     let pushed_roles = new_subject_roles.filter(role => !old_subject_roles.includes(role))
     let pulled_roles = old_subject_roles.filter(role => !new_subject_roles.includes(role))
 
+    if (pushed_roles.some(role => old_subject_roles.includes(role)))
+      throw ApiError.AccessDenied('Такая роль уже существует')
     if (
       !pushed_roles.every(role => this.hasAccessToRole(assigning_user_roles, role)) &&
       !pulled_roles.every(role => this.hasAccessToRole(assigning_user_roles, role))
