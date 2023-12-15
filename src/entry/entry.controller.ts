@@ -201,7 +201,6 @@ export class EntryController {
       throw ApiError.AccessDenied()
 
     await entry.deleteOne()
-    return { message: 'Успешно удалено' }
   }
 
   @UseGuards(AuthGuard)
