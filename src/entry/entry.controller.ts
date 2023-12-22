@@ -11,13 +11,17 @@ import { EntryType } from 'src/types/entry-type.type';
 import { TryToGetUser } from 'src/auth/try-to-get-user.guard';
 import RequestWithUserOrNot from 'src/types/request-with-user-or-not.type';
 import { RolesService } from 'src/roles/roles.service';
+import { SchoolClass } from 'src/school/schemas/school.schema';
+import { SchoolService } from 'src/school/school.service';
 
 @Controller('entry')
 export class EntryController {
   constructor(
     @InjectModel('Entry') private EntryModel: Model<EntryClass>,
+    @InjectModel('School') private SchoolModel: Model<SchoolClass>,
     private EntryService: EntryService,
-    private RolesService: RolesService
+    private RolesService: RolesService,
+    private SchoolService: SchoolService
   ) {} 
 
   @UseGuards(TryToGetUser)
@@ -228,18 +232,19 @@ export class EntryController {
   @Get('get-entries-to-moderation')
   async get_entries_to_moderation(
     @Req() req: RequestWithUser, 
+    @Query('school_id') school_id: string
   ) {
-    if (this.RolesService.isGlobalAdmin(req.user.roles))
-      return await this.EntryModel.find({ on_moderation: true })
+    let school = await this.SchoolModel.findById(school_id)
+
+    if (!school)
+      throw ApiError.BadRequest('Школа не найдена')
+
+    if (!this.SchoolService.hasAccess(req.user.roles, school_id, school.town._id.toString()))
+      throw ApiError.AccessDenied()
 
     return await this.EntryModel.find({ 
       on_moderation: true, 
-      school: { 
-        $in: this.RolesService.getSchoolObjectIdsFromRoles(req.user.roles) 
-      },
-      town: {
-        $in: this.RolesService.getTownObjectIdsFromRoles(req.user.roles)
-      }
+      school: new mongoose.Types.ObjectId(school_id)
     })
   }
 }
