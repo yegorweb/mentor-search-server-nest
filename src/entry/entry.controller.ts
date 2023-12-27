@@ -159,6 +159,15 @@ export class EntryController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('get-responses')
+  async getResponses(
+    @Req() req: RequestWithUser,
+    @Query('entry_id') entry_id: string
+  ) {
+    return (await this.EntryModel.findById(entry_id).populate({ path: 'responses', select: ['name', 'avatar_url', 'ranks'] })).responses
+  }
+
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('edit')
   async edit(
