@@ -140,7 +140,10 @@ export class AuthService {
   
   async update(new_user: UserFromClient, user: UserFromClient) {
     let roles = user.roles
-    this.RolesService.isMentor(new_user.roles) && !this.RolesService.isMentor(user.roles) ? roles.push('mentor') : null
+    if (this.RolesService.isMentor(new_user.roles) && !this.RolesService.isMentor(user.roles))
+      roles.push('mentor')
+    if (!this.RolesService.isMentor(new_user.roles) && this.RolesService.isMentor(user.roles))
+      roles.filter(role => role !== 'mentor')
 
     delete new_user.date
     new_user = Object.assign(new_user, { roles })
