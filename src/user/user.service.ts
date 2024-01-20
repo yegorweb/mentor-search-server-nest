@@ -39,6 +39,9 @@ export class UserService {
   }
 
   async hasAccessToRole(user_roles: string[], role: string): Promise<boolean> {
+    if (role === 'student')
+      return true
+
     if (this.RolesService.isOwner([role]))
       return false
     
@@ -48,9 +51,6 @@ export class UserService {
     if (this.RolesService.isGlobalAdmin([role]))
       return false
 
-    if (this.RolesService.isOwner([role]))
-      return false
-    
     if (this.RolesService.getTownIdsFromRoles([role]).length)
       return this.RolesService.isGlobalAdmin(user_roles)
     
@@ -61,7 +61,7 @@ export class UserService {
 
       let school = await this.SchoolModel.findById(this.RolesService.getSchoolIdsFromRoles([role])[0])
 
-      if (!administered_towns_ids.some(town_id => town_id != school.town._id))
+      if (administered_towns_ids.every(town_id => town_id != school.town._id))
         return false
       
       return true
