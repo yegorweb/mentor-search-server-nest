@@ -8,6 +8,7 @@ import ApiError from 'src/exceptions/errors/api-error';
 import { RolesService } from 'src/roles/roles.service';
 import { SchoolClass } from 'src/school/schemas/school.schema';
 import { SchoolService } from 'src/school/school.service';
+import { TownClass } from 'src/town/schemas/town.schema';
 import RequestWithUser from 'src/types/request-with-user.type';
 import { UserFromClient } from './interfaces/user-from-client.interface';
 import { UserClass } from './schemas/user.schema';
@@ -19,8 +20,10 @@ export class UserController {
     @InjectModel('User') private UserModel: Model<UserClass>,
     @InjectModel('Entry') private EntryModel: Model<EntryClass>,
     @InjectModel('School') private SchoolModel: Model<SchoolClass>,
+    @InjectModel('Town') private TownModel: Model<TownClass>,
     private UserService: UserService,
-    private SchoolService: SchoolService
+    private SchoolService: SchoolService,
+    private RolesService: RolesService
   ) {} 
 
   @Get('get-by-id')
@@ -96,5 +99,60 @@ export class UserController {
     @Query('role') role: string
   ): Promise<boolean> {
     return await this.UserService.hasAccessToRole(req.user.roles, role)
+  }
+
+  @UseGuards(SomeAdminGuard)
+  @Get('get-roles')
+  async getRoles(
+    @Req() req: RequestWithUser,
+    @Query('user_id') user_id: string
+  ) {
+    let user = await this.UserModel.findById(user_id)
+    let result = []
+    for (let role in user.roles) {
+      if (this.RolesService.isOwner([role])) {
+        result.push({
+          role,
+          name: 'Владелец',
+          have_access: false
+        })
+        break
+      }
+      if (this.RolesService.isGlobalAdmin([role])) {
+        result.push({
+          role,
+          name: 'Глобальный администратор',
+          have_access: this.RolesService.isOwner(req.user.roles)
+        })
+        break
+      }
+      if (this.RolesService.getTownIdsFromRoles([role]).length) {
+        let _id = this.RolesService.getIdFromRole(role)
+        let town = await this.TownModel.findById(_id)
+        if (!town) break
+
+        result.push({
+          role,
+          name: `Админ города «${town.name}»`,
+          have_access: this.RolesService.isGlobalAdmin(req.user.roles)
+        })
+        break
+      }
+      if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
+        let _id = this.RolesService.getIdFromRole(role)
+        let school = await this.SchoolModel.findById(_id)
+        if (!school) break
+
+        result.push({
+          role,
+          name: `Админ ОУ «${school.name}»`,
+          have_access: (
+            this.RolesService.isGlobalAdmin(req.user.roles) || 
+            this.RolesService.getTownIdsFromRoles(req.user.roles).includes(school.town._id.toString())
+          )
+        })
+        break
+      }
+    }
   }
 }

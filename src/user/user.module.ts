@@ -4,6 +4,7 @@ import EntryModel from 'src/entry/models/entry.model';
 import { RolesService } from 'src/roles/roles.service';
 import SchoolModel from 'src/school/models/school.model';
 import { SchoolService } from 'src/school/school.service';
+import TownModel from 'src/town/models/town.model';
 import UserModel from './models/user.model';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -13,6 +14,7 @@ import { UserService } from './user.service';
     UserModel,
     EntryModel,
     SchoolModel,
+    TownModel,
     JwtModule
   ],
   controllers: [UserController],
