@@ -1,12 +1,10 @@
-import { S3 } from "aws-sdk";
+import EasyYandexS3 from "easy-yandex-s3";
 
-export let s3 = new S3({
-    credentials: {
-      accessKeyId: `${process.env.SELECTEL_ACCOUNT}_${process.env.BUCKET_ACCOUNT}`,
-      secretAccessKey: process.env.BUCKET_PASSWORD
-    },
-    endpoint: 'https://s3.storage.selcloud.ru',
-    s3ForcePathStyle: true,
-    region: 'ru-1',
-    apiVersion: 'latest'
+export let s3 = new EasyYandexS3({
+  auth: {
+    accessKeyId: process.env.YC_KEY_ID,
+    secretAccessKey: process.env.YC_SECRET,
+  },
+  Bucket: process.env.YC_BUCKET_NAME,
+  debug: false
 })
