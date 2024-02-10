@@ -3,7 +3,7 @@ export {}
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      PORT: number
+      PORT: string
       HTTPS: string
       
       MONGO_URL: string
@@ -15,10 +15,10 @@ declare global {
       EMAIL: string
       EMAIL_PASSWORD: string    
 
-      SELECTEL_ACCOUNT: string
-      BUCKET_NAME: string
-      BUCKET_ACCOUNT: string
-      BUCKET_PASSWORD: string
+      YC_KEY_ID: string
+      YC_SECRET: string
+      YC_BUCKET_NAME: string
+      YC_BUCKET_URL_PREFIX: string
     }
   }
 }
