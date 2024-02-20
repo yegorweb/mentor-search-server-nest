@@ -104,7 +104,7 @@ export class EntryController {
   ) {
     this.EntryService.checkLimit(req.user)
     
-    let admin = this.EntryService.beforeCreateIsAdmin(req.user.roles, entry)
+    let admin = await this.EntryService.beforeCreateIsAdmin(req.user.roles, entry)
 
     return await this.EntryModel.create(
       Object.assign(entry, { 
