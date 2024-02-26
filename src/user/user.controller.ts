@@ -1,11 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, ParseFilePipeBuilder, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose, { Model } from 'mongoose';
 import { SomeAdminGuard } from 'src/admin/some_admin.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { EntryClass } from 'src/entry/schemas/entry.schema';
 import ApiError from 'src/exceptions/errors/api-error';
 import { RolesService } from 'src/roles/roles.service';
+import { s3 } from 'src/s3/bucket';
 import { SchoolClass } from 'src/school/schemas/school.schema';
 import { SchoolService } from 'src/school/school.service';
 import { TownClass } from 'src/town/schemas/town.schema';
@@ -13,6 +15,8 @@ import RequestWithUser from 'src/types/request-with-user.type';
 import { UserFromClient } from './interfaces/user-from-client.interface';
 import { UserClass } from './schemas/user.schema';
 import { UserService } from './user.service';
+import { v4 as uuidv4 } from 'uuid';
+import { ManagedUpload } from 'aws-sdk/clients/s3';
 
 @Controller('user')
 export class UserController {
@@ -64,6 +68,45 @@ export class UserController {
     return await this.UserModel.find({ 
       school: school._id 
     })
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('image'))
+  @Post('upload-avatar')
+  async uploadAvatar(
+    @Req() req: RequestWithUser,
+    @UploadedFile(new ParseFilePipeBuilder()
+      .addFileTypeValidator({
+        fileType: 'jpeg',
+      })
+      .addMaxSizeValidator({
+        maxSize: 200,
+        message: 'Превышен максимальный размер 200х200'
+      })
+      .build({
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    ) file: Express.Multer.File
+  ) {
+    let id = uuidv4()
+
+    let upload = await s3.Upload({
+      name: `${id}.jpg`,
+      buffer: file.buffer
+    }, '/') as ManagedUpload.SendData
+
+    if (!upload)
+      throw ApiError.BadRequest('Ошибка на сервере. Сообщите о ней')
+    
+    let previos_avatar = req.user.avatar_url
+    await this.UserModel.findByIdAndUpdate(req.user._id, { $set: { avatar_url: upload.Location } })
+
+    if (previos_avatar) {
+      try {
+        s3.Remove('/' + previos_avatar.split('/').pop())
+      } catch {}
+    }
   }
 
   @HttpCode(HttpStatus.OK)
