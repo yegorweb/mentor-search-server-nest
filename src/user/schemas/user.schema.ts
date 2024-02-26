@@ -92,7 +92,7 @@ export class UserClass {
 
   @Prop({
     type: [String], 
-    default: ['student'],
+    default: [],
     required: true
   })
   roles: string[]
