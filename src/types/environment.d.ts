@@ -18,7 +18,6 @@ declare global {
       YC_KEY_ID: string
       YC_SECRET: string
       YC_BUCKET_NAME: string
-      YC_BUCKET_URL_PREFIX: string
     }
   }
 }
