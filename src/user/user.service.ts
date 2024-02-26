@@ -31,44 +31,46 @@ export class UserService {
 
     if (pushed_roles.some(role => old_subject_roles.includes(role)))
       throw ApiError.AccessDenied('Такая роль уже существует')
-    if (
-      !pushed_roles.every(role => this.hasAccessToRole(assigning_user_roles, role)) &&
-      !pulled_roles.every(role => this.hasAccessToRole(assigning_user_roles, role))
-    )
+
+    let success_to_push = (await Promise.all(pushed_roles.map(async role => await this.hasAccessToPushRole(assigning_user_roles, role)))).every(value => value)
+    let success_to_pull = (await Promise.all(pulled_roles.map(async role => await this.hasAccessToPullRole(assigning_user_roles, role)))).every(value => value)
+
+    if (!success_to_push || !success_to_pull)
       throw ApiError.AccessDenied()
   }
 
-  async hasAccessToRole(user_roles: string[], role: string): Promise<boolean> {
-    if (role === 'student')
-      return true
-
-    if (this.RolesService.isOwner([role]))
+  async hasAccessToPushRole(user_roles: string[], role: string) {
+    if (this.RolesService.isOwner([role])) 
       return false
-    
-    if (this.RolesService.isOwner(user_roles))
-      return true
 
     if (this.RolesService.isGlobalAdmin([role]))
-      return false
-
-    if (this.RolesService.getTownIdsFromRoles([role]).length)
-      return this.RolesService.isGlobalAdmin(user_roles)
+      return this.RolesService.isOwner(user_roles)
     
-    if (this.RolesService.getSchoolIdsFromRoles([role]).length && !user_roles.includes(role)) {
-      let administered_towns_ids = this.RolesService.getTownObjectIdsFromRoles(user_roles)
-      if (!administered_towns_ids.length)
-        return false
-
-      let school = await this.SchoolModel.findById(this.RolesService.getSchoolIdsFromRoles([role])[0])
-
-      if (administered_towns_ids.every(town_id => town_id != school.town._id))
-        return false
-      
+    if (this.RolesService.isGlobalAdmin(user_roles) || user_roles.includes(role))
       return true
+    
+    if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
+      let school = await this.SchoolModel.findById(this.RolesService.getIdFromRole(role))
+      return this.RolesService.isAdminOfTown(user_roles, school.town._id.toString())
     }
 
-    if (!user_roles.includes(role))
+    return true
+  }
+  
+  async hasAccessToPullRole(user_roles: string[], role: string) {
+    if (this.RolesService.isOwner([role])) 
       return false
+
+    if (this.RolesService.isGlobalAdmin([role]))
+      return this.RolesService.isOwner(user_roles)
+
+    if (this.RolesService.isGlobalAdmin(user_roles))
+      return true
+    
+    if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
+      let school = await this.SchoolModel.findById(this.RolesService.getIdFromRole(role))
+      return this.RolesService.isAdminOfTown(user_roles, school.town._id.toString())
+    }      
 
     return true
   }
