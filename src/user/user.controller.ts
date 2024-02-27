@@ -116,9 +116,6 @@ export class UserController {
     @Req() req: RequestWithUser,
     @Body('user') user: UserFromClient
   ) {
-    if (!this.UserService.hasAccess(req.user.roles, user))
-      throw ApiError.AccessDenied()
-
     let subject_user = await this.UserModel.findById(user._id)
     
     await this.UserService.checkAccessToRoles(
@@ -134,16 +131,6 @@ export class UserController {
     }, { runValidators: true })
   }
 
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  @Get('have-i-access-to-role')
-  async haveIAccessToRole(
-    @Req() req: RequestWithUser,
-    @Query('role') role: string
-  ): Promise<boolean> {
-    return await this.UserService.hasAccessToRole(req.user.roles, role)
-  }
-
   @UseGuards(SomeAdminGuard)
   @Get('get-roles')
   async getRoles(
@@ -151,7 +138,12 @@ export class UserController {
     @Query('user_id') user_id: string
   ) {
     let user = await this.UserModel.findById(user_id)
-    let result = []
+    let result: {
+      role: string,
+      name: string,
+      have_access: boolean
+    }[] = []
+
     for (let role in user.roles) {
       if (this.RolesService.isOwner([role])) {
         result.push({
@@ -161,7 +153,7 @@ export class UserController {
         })
         break
       }
-      if (this.RolesService.isGlobalAdmin([role])) {
+      else if (this.RolesService.isGlobalAdmin([role])) {
         result.push({
           role,
           name: 'Глобальный администратор',
@@ -169,7 +161,7 @@ export class UserController {
         })
         break
       }
-      if (this.RolesService.getTownIdsFromRoles([role]).length) {
+      else if (this.RolesService.getTownIdsFromRoles([role]).length) {
         let _id = this.RolesService.getIdFromRole(role)
         let town = await this.TownModel.findById(_id)
         if (!town) break
@@ -181,7 +173,7 @@ export class UserController {
         })
         break
       }
-      if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
+      else if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
         let _id = this.RolesService.getIdFromRole(role)
         let school = await this.SchoolModel.findById(_id)
         if (!school) break
@@ -189,13 +181,14 @@ export class UserController {
         result.push({
           role,
           name: `Админ ОУ «${school.name}»`,
-          have_access: (
-            this.RolesService.isGlobalAdmin(req.user.roles) || 
-            this.RolesService.getTownIdsFromRoles(req.user.roles).includes(school.town._id.toString())
-          )
+          have_access: await this.UserService.hasAccessToPullRole(req.user.roles, role)
         })
         break
       }
+      else {
+        break
+      }
     }
+    return result
   }
 }
