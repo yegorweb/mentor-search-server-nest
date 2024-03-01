@@ -144,7 +144,8 @@ export class UserController {
       have_access: boolean
     }[] = []
 
-    for (let role in user.roles) {
+    for (const role of user.roles) {
+      console.log(role)
       if (this.RolesService.isOwner([role])) {
         result.push({
           role,
@@ -183,9 +184,6 @@ export class UserController {
           name: `Админ ОУ «${school.name}»`,
           have_access: await this.UserService.hasAccessToPullRole(req.user.roles, role)
         })
-        break
-      }
-      else {
         break
       }
     }
