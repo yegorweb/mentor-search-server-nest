@@ -145,7 +145,6 @@ export class UserController {
     }[] = []
 
     for (const role of user.roles) {
-      console.log(role)
       if (this.RolesService.isOwner([role])) {
         result.push({
           role,
