@@ -96,6 +96,9 @@ export class UserClass {
     required: true
   })
   roles: string[]
+
+  @Prop()
+  deleted: boolean
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserClass)

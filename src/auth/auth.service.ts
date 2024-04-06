@@ -44,6 +44,9 @@ export class AuthService {
     if (!user) {
       throw ApiError.BadRequest('Пользователь с таким email не найден')
     }
+
+    if (user.deleted)
+      throw ApiError.BadRequest('Аккаунт заблокирован по решению администратора')
   
     if (user.password.length < 8)
       throw ApiError.BadRequest('Слишком короткий пароль')
@@ -74,6 +77,9 @@ export class AuthService {
 
     const user = (await this.UserModel.findById(userData._id)).toObject()
 
+    if (user.deleted)
+      throw ApiError.BadRequest('Ваш аккаунт заблокирован по решению администратора')
+    
     if (userData.password !== user.password)
       throw ApiError.AccessDenied('Аутентификация провалена. Пароль изменен')
 
