@@ -151,7 +151,6 @@ export class UserController {
           name: 'Владелец',
           have_access: false
         })
-        break
       }
       else if (this.RolesService.isGlobalAdmin([role])) {
         result.push({
@@ -159,31 +158,30 @@ export class UserController {
           name: 'Глобальный администратор',
           have_access: this.RolesService.isOwner(req.user.roles)
         })
-        break
       }
       else if (this.RolesService.getTownIdsFromRoles([role]).length) {
         let _id = this.RolesService.getIdFromRole(role)
         let town = await this.TownModel.findById(_id)
-        if (!town) break
-
-        result.push({
-          role,
-          name: `Админ города «${town.name}»`,
-          have_access: this.RolesService.isGlobalAdmin(req.user.roles)
-        })
-        break
+        
+        if (town) {
+          result.push({
+            role,
+            name: `Админ города «${town.name}»`,
+            have_access: this.RolesService.isGlobalAdmin(req.user.roles)
+          })
+        }
       }
       else if (this.RolesService.getSchoolIdsFromRoles([role]).length) {
         let _id = this.RolesService.getIdFromRole(role)
         let school = await this.SchoolModel.findById(_id)
-        if (!school) break
-
-        result.push({
-          role,
-          name: `Админ ОУ «${school.name}»`,
-          have_access: await this.UserService.hasAccessToPullRole(req.user.roles, role)
-        })
-        break
+        
+        if (school) {
+          result.push({
+            role,
+            name: `Админ ОУ «${school.name}»`,
+            have_access: await this.UserService.hasAccessToPullRole(req.user.roles, role)
+          })
+        } 
       }
     }
     return result
